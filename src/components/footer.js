@@ -20,7 +20,7 @@ const Footer = Styled.footer`
   margin-top: auto;
   padding: 2rem 0 4rem 0;
   text-align: center;
-  /* width: 100%; */
+  width: 100%;
   z-index: 0;
   p {
     display: block;
