@@ -29,12 +29,14 @@ const Page = Styled.div`
 `
 
 const LayoutWrapper = Styled.div`
-  display: block;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   /* width: 100%; */
   min-height: 100vh;
   /* flex-direction: column; */
   position: relative;
   padding-top: 20rem;
+  
 `
 
 const Main = Styled.main`
@@ -61,7 +63,7 @@ const Layout = ({ children }) => {
       <ThemeContext.Consumer>
         { c => <BackgroundGrid theme={ c.theme } /> }
       </ThemeContext.Consumer>
-      <LayoutWrapper>
+      <LayoutWrapper data-layer-wrapper>
         <Header />
         <Main>{ children }</Main>
         <Footer />
