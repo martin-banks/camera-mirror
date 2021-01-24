@@ -2,8 +2,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import Styled from 'styled-components'
 import PropTypes from 'prop-types'
 
+import arrayMirror from '../functions/array-mirror'
+
 
 const videoWidth = 400
+const ratio = [ 400, 400 ]
 
 const Preview = Styled.canvas`
   width: ${p => videoWidth}px;
@@ -24,9 +27,9 @@ const Video = Styled.video`
 `
 
 function groupPixels (pixels) {
-  console.log({ pixels })
   // if (!data) return null
   // const pixels = [...data]
+  console.log({ pixels })
   const count = pixels?.data?.length / 4
   const output = {
     width: pixels.width,
@@ -36,12 +39,32 @@ function groupPixels (pixels) {
   for (let i = 0; i < count; i++) {
     const start = 4 * i
     const end = start + 4
-    pixels.data[start + 1] = 255
-    // output.data.push(...data.data.slice(start, end))
+    // pixels.data[start + 1] = 255
+    output.data.push([...pixels.data.slice(start, end)])
   }
   // return output
-  console.log({ output })
-  return pixels
+  // console.log({ output })
+  const mirrored = arrayMirror({ ratio, data: output.data }).left
+  // console.log({ mirrored })
+  // return
+  const mirrorSplit = []
+  for (let i = 0; i < mirrored.length; i++) {
+    mirrorSplit.push(...mirrored[i])
+  }
+
+  // const newSize = Math.sqrt(mirrorSplit.length / 4)
+  console.log({ mirrorSplit })
+
+  const readyToRender = new ImageData(
+    Uint8ClampedArray.from(mirrorSplit),
+    // newSize,
+    // newSize
+    pixels.width,
+    pixels.height,
+  )
+
+  console.log({ readyToRender })
+  return readyToRender
 }
 
 const WebCam = () => {
@@ -69,7 +92,7 @@ const WebCam = () => {
         let updateLoop = null
 
         setTimeout(() => {
-          console.log(videoRef.current.videoWidth)
+          // console.log(videoRef.current.videoWidth)
 
           canvasRef.current.width = videoWidth
           canvasRef.current.height = videoWidth
@@ -77,7 +100,7 @@ const WebCam = () => {
           previewRef.current.width = videoWidth
           previewRef.current.height = videoWidth
 
-          console.log({ pixelState })
+          // console.log({ pixelState })
 
           updateLoop = setInterval(() => {
             ctx.drawImage(
@@ -88,6 +111,8 @@ const WebCam = () => {
             )
 
             // setNewPixels()
+
+            // console.log(Uint8ClampedArray.from([...ctx.getImageData(0, 0, videoWidth, videoWidth).data]))
 
 
             previewCtx.putImageData(
@@ -117,7 +142,7 @@ const WebCam = () => {
             // const pixels = ctx.getImageData(0, 0, videoWidth, videoWidth)
             // updatePixelState(pixels)
 
-          }, 16)
+          }, 32) // interval update
         }, 1000)
 
         setTimeout(() => {
