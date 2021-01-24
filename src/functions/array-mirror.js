@@ -12,7 +12,7 @@
 
 function arrayMirror({ data, ratio }) {
   if (!data) return
-  console.log({ data })
+  // console.log({ data })
 
   const leftSideMirror = []
   const rightSideMirror = []
@@ -47,12 +47,14 @@ function arrayMirror({ data, ratio }) {
     leftSideMirror.push(...leftDataSet.reverse())
 
     // rightSideMirror.push(...rightDataSet.slice(1, rightDataSet.length).reverse())
-    rightSideMirror.push(...rightDataSet.reverse())
+    rightSideMirror.push(...[...rightDataSet].reverse())
     rightSideMirror.push(...rightDataSet)
 
     // Helps us to manually check we are serating the data correctly
     // console.log({ leftDataSet, rightDataSet })
   }
+
+  console.log({ rightSideMirror })
 
   return {
     left: leftSideMirror,
