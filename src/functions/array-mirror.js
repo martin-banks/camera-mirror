@@ -54,8 +54,6 @@ function arrayMirror({ data, ratio }) {
     // console.log({ leftDataSet, rightDataSet })
   }
 
-  console.log({ rightSideMirror })
-
   return {
     left: leftSideMirror,
     right: rightSideMirror,
