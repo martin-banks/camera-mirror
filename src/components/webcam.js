@@ -8,22 +8,28 @@ import arrayMirror from '../functions/array-mirror'
 const videoWidth = 400
 const ratio = [ 400, 400 ]
 
-const Preview = Styled.canvas`
-  width: ${p => videoWidth}px;
-  height: ${p => videoWidth}px;
-  outline: solid 1px cyan;
+const VideoWrapper = Styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  justify-items: center;
+  align-items: center;
 `
 
-const Canvas = Styled.canvas`
-  width: ${p => videoWidth}px;
-  height: ${p => videoWidth}px;
-  outline: solid 1px purple;
+const Preview = Styled.canvas`
+  width: 200px;
+  height: 200px;
+`
+
+const CanvasStaging = Styled.canvas`
+  display: none;
+  width: 0;
+  height: 0;
 `
 
 const Video = Styled.video`
-  width: ${p => videoWidth}px;
-  height: ${p => videoWidth}px;
-  outline: solid 1px pink;
+  width: 400px; // ${p => videoWidth / 2}px;
+  height: 400px; // ${p => videoWidth / 2}px;
+  /* display: none; */
 `
 
 function groupPixels (pixels) {
@@ -78,6 +84,7 @@ const WebCam = () => {
   useEffect (() => {
     navigator.mediaDevices.getUserMedia({
       audio: false,
+      // video: true,
       video: {
         width: videoWidth,
         height: videoWidth,
@@ -86,6 +93,14 @@ const WebCam = () => {
       .then(localMediaStream => {
         console.log(localMediaStream)
         videoRef.current.srcObject = localMediaStream
+
+        const videoTrack = localMediaStream.getVideoTracks()[0]
+        const videoTrackCapabilities = videoTrack.getCapabilities()
+        console.log({ videoTrack })
+        // const maxVideoSize = {
+        //   width: videoTrackCapabilities.width,
+        //   height: videoTrackCapabilities.height,
+        // }
         videoRef.current.play()
         const ctx = canvasRef.current.getContext('2d')
         const previewCtxLeft = previewRefLeft.current.getContext('2d')
@@ -132,6 +147,7 @@ const WebCam = () => {
         setTimeout(() => {
           // Cancel the update loop after timep period
           clearInterval(updateLoop)
+          videoRef.current.pause()
         }, 10 * 1000)
       })
       .catch(err => {
@@ -140,10 +156,13 @@ const WebCam = () => {
   })
 
   return <div>
-    <Preview ref={ previewRefLeft } />
-    <Canvas ref={ canvasRef } />
-    <Video ref={ videoRef } />
-    <Preview ref={ previewRefRight } />
+    <CanvasStaging ref={ canvasRef } />
+
+    <VideoWrapper>
+      <Preview ref={ previewRefLeft } />
+      <Video ref={ videoRef } />
+      <Preview ref={ previewRefRight } />
+    </VideoWrapper>
     {/* <pre>
       pixels length: { pixelState?.length } | 
       grouped: { groupPixels(pixelState)?.length }
