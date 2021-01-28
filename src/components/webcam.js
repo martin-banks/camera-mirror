@@ -10,63 +10,8 @@ import MirrorPreview from './mirror-preview'
 const videoWidth = 400
 const ratio = [ 400, 400 ]
 
-const VideoWrapper = Styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  justify-items: center;
-  align-items: center;
-`
-
-
-// const Preview = Styled.div`
-//   position: relative;
-//   outline: solid 1px pink;
-//   &:hover {
-//     [data-download] {
-//       /* transform: translateY(0); */
-//       opacity: 1
-//     };
-
-//   };
-// `
-
-const Canvas = Styled.canvas`
-  width: 350px;
-  height: 350px;
-`
-
-// This canvas is used to convert the video
-// it is not intended to be seen
-const CanvasStaging = Styled.canvas`
-  display: none;
-  width: 0;
-  height: 0;
-`
-
-const Video = Styled.video`
-  width: 400px; // ${p => videoWidth / 2}px;
-  height: 400px; // ${p => videoWidth / 2}px;
-  /* display: none; */
-  outline: solid 1px pink;
-`
-
-// const DownloadOverlay = Styled.div`
-//   position: absolute;
-//   left: 0;
-//   top: 0;
-//   width: 100%;
-//   height: 100%;
-//   background: rgba(0, 200, 0, 0.5);
-//   border: solid 4px lime;
-//   opacity: 0;
-//   /* transform: translateY(100%); */
-//   transition: all 300ms;
-//   backdrop-filter: blur(4px);
-// `
 
 function groupPixels (pixels) {
-  // if (!pixels) return null
-  // console.log({ pixels })
   const count = pixels?.data?.length / 4
   const output = {
     width: pixels.width,
@@ -104,20 +49,47 @@ function groupPixels (pixels) {
   return readyToRender
 }
 
+
+// ? Components
+
+const Wrapper = Styled.div`
+  margin-bottom: 20rem;
+`
+const VideoWrapper = Styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  justify-items: center;
+  align-items: center;
+`
+const Canvas = Styled.canvas`
+  width: 350px;
+  height: 350px;
+`
+// This canvas is used to convert the video
+// it is not intended to be seen
+const CanvasStaging = Styled.canvas`
+  display: none;
+  width: 0;
+  height: 0;
+`
+const Video = Styled.video`
+  width: 400px; // ${p => videoWidth / 2}px;
+  height: 400px; // ${p => videoWidth / 2}px;
+  outline: solid 1px pink;
+`
+
+
+// ! Webcam app
 const WebCam = () => {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const previewRefLeft = useRef(null)
   const previewRefRight = useRef(null)
 
-  // const [ pixelState, updatePixelState ] = useState(null)
-  // const [ newPixels, setNewPixels ] = useState(null)
-
   useEffect (() => {
     return
     navigator.mediaDevices.getUserMedia({
       audio: false,
-      // video: true,
       video: {
         width: videoWidth,
         height: videoWidth,
@@ -130,11 +102,9 @@ const WebCam = () => {
         const videoTrack = localMediaStream.getVideoTracks()[0]
         const videoTrackCapabilities = videoTrack.getCapabilities()
         console.log({ videoTrack })
-        // const maxVideoSize = {
-        //   width: videoTrackCapabilities.width,
-        //   height: videoTrackCapabilities.height,
-        // }
+
         videoRef.current.play()
+
         const ctx = canvasRef.current.getContext('2d')
         const previewCtxLeft = previewRefLeft.current.getContext('2d')
         const previewCtxRight = previewRefRight.current.getContext('2d')
@@ -188,20 +158,16 @@ const WebCam = () => {
       })
   })
 
-  return <div>
+  return <Wrapper>
     <CanvasStaging ref={ canvasRef } />
 
     <VideoWrapper>
       <MirrorPreview>
         <Canvas ref={ previewRefLeft } />
       </MirrorPreview>
-      {/* <Preview >
-        <DownloadOverlay data-download>
-        <p>Download</p>
-        </DownloadOverlay>
-      </Preview> */}
+
       <Video ref={ videoRef } />
-      {/* <Preview ref={ previewRefRight }></Preview> */}
+
       <MirrorPreview>
         <Canvas ref={ previewRefRight } />
       </MirrorPreview>
@@ -210,7 +176,7 @@ const WebCam = () => {
       pixels length: { pixelState?.length } | 
       grouped: { groupPixels(pixelState)?.length }
     </pre> */}
-  </div>
+  </Wrapper>
 }
 
 
