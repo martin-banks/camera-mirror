@@ -6,9 +6,9 @@ const Svg = Styled.svg`
   position: relative;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 6rem;
+  margin-bottom: 12rem;
   min-width: 150px;
-  width: 30vw;
+  width: 25vw;
   max-width: 200px;
 `
 const CameraBox = Styled.rect`
