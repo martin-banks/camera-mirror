@@ -111,6 +111,7 @@ h6 {
 }
 
 p {
+  font-family: fira-code, monospace, sans-serif;
   font-size: 2rem;
 }
 li {
