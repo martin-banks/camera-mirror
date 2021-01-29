@@ -116,7 +116,8 @@ function captureFromWebcam ({ videoSize, videoRef, canvasRef, previewRefLeft, pr
       }, duration)
     })
     .catch(err => {
-      console.error('-- MEDIA STREAM ERROR --\n', err)
+      console.error('-- MEDIA STREAM ERROR --')
+      console.trace( err)
     })
 }
 
