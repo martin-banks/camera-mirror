@@ -7,21 +7,18 @@
 
 import React from "react"
 import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+// import { useStaticQuery, graphql } from "gatsby"
 import Styled from 'styled-components'
 
+// import ThemeContext from '../context/theme-context'
+
 import Header from "./header"
-// import "./layout.css"
-import BackgroundGrid from '../components/backgrounds/isometric-grid'
 import TriangleBackground from '../components/triangle-background'
 import Footer from './footer'
-import ThemeContext from '../context/theme-context'
+
+import useWindowSize from './window-resize-hook'
 
 
-
-// const theme = typeof window !== 'undefined'
-//   ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-//   : 'dark'
 
 const Page = Styled.div`
   display: block;
@@ -33,9 +30,7 @@ const Page = Styled.div`
 const LayoutWrapper = Styled.div`
   display: grid;
   grid-template-rows: auto 1fr auto;
-  /* width: 100%; */
   min-height: 100vh;
-  /* flex-direction: column; */
   position: relative;
   padding-top: 10rem;
   z-index: 100;
@@ -43,13 +38,13 @@ const LayoutWrapper = Styled.div`
 
 const Main = Styled.main`
   display: block;
-  /* width: 100%; */
-  /* padding: 4rem; */
   box-sizing: border-box;
 `
 
 
 const Layout = ({ children }) => {
+  const [ windowWidth, windowHeight ] = useWindowSize()
+
   // const data = useStaticQuery(graphql`
   //   query SiteTitleQuery {
   //     site {
@@ -60,15 +55,14 @@ const Layout = ({ children }) => {
   //   }
   // `)
 
+
   return (
     <Page>
       {/* <ThemeContext.Consumer> */}
         {/* { c => <BackgroundGrid theme={ c.theme } /> } */}
       {/* </ThemeContext.Consumer> */}
       <TriangleBackground
-        // height: '100%',
-        // width: '100%',
-        hyp={ Math.max(Math.floor(window.innerWidth / 80), 80) }
+        hyp={ Math.max(Math.floor(windowWidth / 80), 80) }
         ratio={ [1, 1] }
         fillEdges={ true }
         gradientColors={
