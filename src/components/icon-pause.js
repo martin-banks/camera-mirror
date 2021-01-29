@@ -19,7 +19,7 @@ const Pause = props => {
   </svg>
 }
 
-Pause.defaultPropTypes = {
+Pause.defaultProps = {
   size: 50,
   fill: '#FFFFFF'
 }
