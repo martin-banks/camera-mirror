@@ -13,16 +13,17 @@ const Preview = Styled.div`
   box-shadow: 0 4px 20px -4px black;
   border-radius: 4px;
   background: black;
+  transition: opacity 300ms;
   &:hover {
     [data-background] {
-      opacity: 1;
+      opacity: ${p => p.showOverlay && 1};
     };
     [data-download] {
-      transform: translateY(-33%);
-      opacity: 1;
+      transform: ${p => p.showOverlay && `translateY(-33%)`};
+      opacity: ${p => p.showOverlay && 1};
     };
     [data-message] {
-      transform: translateY(100%);
+      transform: ${p => p.showOverlay && `translateY(100%)`};
     };
   };
 `
@@ -53,8 +54,12 @@ const DownloadWrapper = Styled.div`
   width: 100%;
   height: 100%;
   background: linear-gradient(to top, rgba(0,80,150, 1) 60%, rgba(0,0,0, 0));
+  opacity: ${p => p.showOverlay ? 1 : 0};
   transition: all 300ms;
-  transform: translateY(-25%);
+  transform: ${p => p.showOverlay
+    ? `translateY(-25%)`
+    : `translateY(100%)`
+  };
   cursor: pointer;
 `
 
@@ -82,19 +87,16 @@ const MirrorPreview = props => {
     showOverlay,
   } = props
 
-  return <Preview>
-    {
-      // Overlay should only be shown when the mirror is complete
-      showOverlay && <div>
-        <Background data-background></Background>
-        <DownloadWrapper data-download>
-          <DownloadIcon data-icon size="40"/>
-          {/* <Icon data-icon></Icon> */}
-          <DownloadMessage data-message>Download image</DownloadMessage>
-        </DownloadWrapper>
-      </div>
-    }
 
+  return <Preview showOverlay={ showOverlay }>
+    <div>
+      <Background data-background></Background>
+      <DownloadWrapper data-download showOverlay={ showOverlay }>
+        <DownloadIcon data-icon size="40"/>
+        {/* <Icon data-icon></Icon> */}
+        <DownloadMessage data-message>Download image</DownloadMessage>
+      </DownloadWrapper>
+    </div>
     { children }
   </Preview>
 }
