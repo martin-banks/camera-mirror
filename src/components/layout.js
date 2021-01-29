@@ -13,8 +13,10 @@ import Styled from 'styled-components'
 import Header from "./header"
 // import "./layout.css"
 import BackgroundGrid from '../components/backgrounds/isometric-grid'
+import TriangleBackground from '../components/triangle-background'
 import Footer from './footer'
 import ThemeContext from '../context/theme-context'
+
 
 
 // const theme = typeof window !== 'undefined'
@@ -35,8 +37,8 @@ const LayoutWrapper = Styled.div`
   min-height: 100vh;
   /* flex-direction: column; */
   position: relative;
-  padding-top: 20rem;
-  
+  padding-top: 10rem;
+  z-index: 100;
 `
 
 const Main = Styled.main`
@@ -60,9 +62,25 @@ const Layout = ({ children }) => {
 
   return (
     <Page>
-      <ThemeContext.Consumer>
-        { c => <BackgroundGrid theme={ c.theme } /> }
-      </ThemeContext.Consumer>
+      {/* <ThemeContext.Consumer> */}
+        {/* { c => <BackgroundGrid theme={ c.theme } /> } */}
+      {/* </ThemeContext.Consumer> */}
+      <TriangleBackground
+        // height: '100%',
+        // width: '100%',
+        hyp={ Math.max(Math.floor(window.innerWidth / 80), 80) }
+        ratio={ [1, 1] }
+        fillEdges={ true }
+        gradientColors={
+          [{ color: 'rgba(100,100,100, 0.2)', offset: '0' }]
+          // [
+          //   { color: 'firebrick', offset: '0' },
+          //   { color: 'orange', offset: '0.5' },
+          //   { color: 'gold', offset: '1' },
+          // ]
+        }
+        hideThreshold={ 0.8 }
+      />
       <LayoutWrapper data-layer-wrapper>
         <Header />
         <Main>{ children }</Main>
