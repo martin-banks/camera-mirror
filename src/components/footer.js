@@ -9,8 +9,6 @@ import Signature from './signature-new'
 const Footer = Styled.footer`
   position: relative;
   display: block;
-  /* justify-content: center; */
-  /* align-self: flex-end; */
   bottom: 0;
   left: 0;
   border-top: solid 1px;
@@ -31,10 +29,10 @@ const Footer = Styled.footer`
     width: 100%;
   };
 
-  background: rgba(255,255,255, 0.8);
+  background: rgba(255,255,255, 0.4);
   border-color: rgba(0,0,0, 0.15);
   @media (prefers-color-scheme: dark) {
-    background: rgba(0,0,0, 0.8);
+    background: rgba(0,0,0, 0.4);
     border-color: rgba(255,255,255, 0.2);
   };
 `
@@ -107,9 +105,9 @@ const Background = Styled.div`
 
 const FooterBackgroundFade = Styled.div`
   ${backgroundCommon};
-  background: linear-gradient(rgba(240, 240, 240, 1), rgba(240, 240, 240, 0.2));
+  background: linear-gradient(rgba(240, 240, 240, 0), rgba(240, 240, 240, 0.2));
   @media (prefers-color-scheme: dark) {
-    background: linear-gradient(rgba(10, 10, 10, 1), rgba(10, 10, 10, 0.2));
+    background: linear-gradient(rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.4));
   };
 `
 
@@ -128,7 +126,6 @@ const SignatureWrapper = Styled.div`
   width: 200px;
   align-self: center;
   margin: 0;
-  /* margin-bottom: 1rem; */
   transform: translateX(40%);
 `
 
@@ -183,7 +180,6 @@ export default props => {
                 active={ node.name === activeSocial }
                 background={ node.gradient || node.color }
               >
-                {/* { node.gradient || node.color } */}
               </Background>
             ))
           }
