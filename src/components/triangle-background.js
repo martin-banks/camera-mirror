@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
 import Styled from 'styled-components'
 
+import useWindowSize from './window-resize-hook'
+
 // import AppContext from '../context'
 
 const SVG = Styled.svg`
@@ -17,8 +19,7 @@ const maskOpacity = () => Math.min(Math.random() + 0.1, 0.7)
 
 
 export default props => {
-  // const context = useContext(AppContext)
-
+  // const context = useContext(AppContext)  
   const {
     name = 'default',
     // * Horizintal "size" of the triangle
@@ -43,32 +44,16 @@ export default props => {
       y1: 1,
       y2: 0,
     },
-    width = null,
-    height = null,
+    // width = null,
+    // height = null,
     hideThreshold = 0.7
   } = props
 
+  const [ windowWidth, windowHeight ] = useWindowSize()
   const [ rowCount, setRowCount ] = useState(10)
   const [ viewBox, setViewBox ] = useState([ 1000, 1000 ])
   const [ trianglesPerRow, setTrianglesPerRow ] = useState(50)
 
-  const [ windowWidth, setWindowWidth ] = useState(window.innerWidth)
-  const [ windowHeight, setWindowHeight ] = useState(window.innerHeight)
-
-  // const [ windowWidth, updateWindowWidth ] = useState(context.windowWidth.get)
-  // const [ windowHeight, updateWindowHeight ] = useState(context.windowHeight.get)
-
-  // TODO -> Add window resize listener to rescale pattern to update size if using window size
-  useEffect(() => {
-    // setWindowWidth(window.innerWidth)
-    // setWindowHeight(window.innerHeight)
-    setRowCount(Math.ceil(windowHeight / 50))
-    setViewBox([
-      windowWidth,
-      windowHeight,
-    ])
-    setTrianglesPerRow((Math.ceil(windowWidth / hyp) * (2 * ratio[0])) + (fillEdges ? 2 : 0))
-  }, [])
 
   function createRow (rowIndex) {
     const progress = (fadeDown ? (rowCount - rowIndex) : rowIndex) / rowCount
@@ -108,12 +93,21 @@ export default props => {
     return polygons
   }
 
+
+
+  // TODO -> Add window resize listener to rescale pattern to update size if using window size
+  useEffect(() => {
+    setRowCount(Math.ceil(windowHeight / 50))
+    setViewBox([
+      windowWidth,
+      windowHeight,
+    ])
+    setTrianglesPerRow((Math.ceil(windowWidth / hyp) * (2 * ratio[0])) + (fillEdges ? 2 : 0))
+
+  }, [windowWidth, windowHeight])
+
   const multirowPolygon = [... new Array(rowCount)]
     .map((x, i) => createRow(i))
-
-
-  // console.log({ multirowPolygon })
-
 
   return (
     <SVG
