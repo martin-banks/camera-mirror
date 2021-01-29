@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styled from 'styled-components'
+import Styled, { keyframes } from 'styled-components'
 import PropTypes from 'prop-types'
 
 import captureFromWebcam from '../functions/capture-from-webcam'
@@ -20,7 +20,7 @@ const videoSize = {
 const Wrapper = Styled.div`
   margin-bottom: 20rem;
 `
-const VideoWrapper = Styled.div`
+const PreviewWrapper = Styled.div`
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   justify-items: center;
@@ -36,6 +36,7 @@ const CanvasStaging = Styled.canvas`
   display: none;
   width: 0;
   height: 0;
+  pointer-events: none;
 `
 const Video = Styled.video`
   width: 400px; // ${p => videoSize.width / 2}px;
@@ -56,7 +57,7 @@ const Button = Styled.button`
   cursor: pointer;
   &:hover {
     svg path {
-      fill: gold !important;
+      fill: tomato;
     }
   }
 `
@@ -71,6 +72,65 @@ const Countdown = Styled.span`
   font-family: dharma-gothic-e, sans-serif;
 `
 
+const VideoWrapper = Styled.div`
+  position: relative;
+`
+const Live = Styled.div`
+  position: absolute;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 4px 12px;
+  border: solid 1px white;
+  border-radius: 100px;
+  background: black;
+  @media screen and (prefers-color-scheme: dark) {
+    background: white;
+  }
+`
+
+const pulse = keyframes`
+  0% {
+    opacity: 1
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1
+  }
+`
+const LiveMarker = Styled.div`
+  border-radius: 100px;
+  background: indianred;
+  width: 16px;
+  height: 16px;
+  margin-right: 1rem;
+  display: inline-block;
+  animation: 1.5s ${pulse} infinite ease-in-out;
+  transform: scale(1.2);
+`
+const LiveText = Styled.p`
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  color: white;
+  @media screen and (prefers-color-scheme: dark) {
+    color: black;
+  }
+`
+const CenterLine = Styled.span`
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 0;
+  border-left: dotted 4px red;
+`
+
 
 // ! Webcam app
 const WebCam = () => {
@@ -82,6 +142,7 @@ const WebCam = () => {
   const [ cameraLive, setCameraLive ] = useState(false)
   const [ duration, setDuration ] = useState(5000)
   const [ showTimer, setShowTimer ] = useState(false)
+  const [ hasRun, setHasRun ] = useState(false)
 
   const {
     time,
@@ -91,16 +152,17 @@ const WebCam = () => {
   } = timer()
 
   useEffect (() => {
-    if (cameraLive) {
-      captureFromWebcam({ videoSize, videoRef, canvasRef, previewRefLeft, previewRefRight, duration, setCameraLive })
+    // if (cameraLive) {
+      
       // setIsRunning(false)
-    }
+    // }
 
-    if ((duration / 1000) - time <= 0) {
+    if ((time * 1000) >= duration) {
       setIsRunning(false)
+      setCameraLive(false)
     }
 
-  }, [time, isRunning])
+  }, [time, isRunning, cameraLive])
 
 
   const handleButtonClick = () => {
@@ -109,23 +171,48 @@ const WebCam = () => {
     } else {
       setTime(0)
       setIsRunning(true)
+      setHasRun(true)
+      setCameraLive(true)
+      captureFromWebcam({ videoSize, videoRef, canvasRef, previewRefLeft, previewRefRight, duration, setCameraLive })
     }
+  }
+
+  const handleDownload = ref => {
+    console.log({ ref })
   }
 
   return <Wrapper>
     <CanvasStaging ref={ canvasRef } />
 
-    <VideoWrapper>
-      <MirrorPreview showOverlay={ !isRunning }>
+    <PreviewWrapper>
+      <MirrorPreview
+        showOverlay={ !isRunning && hasRun }
+        canvas={ previewRefLeft }
+        name="mirror-left"
+      >
         <Canvas ref={ previewRefLeft } />
       </MirrorPreview>
 
-      <Video ref={ videoRef } />
+      <VideoWrapper>
+        <Video ref={ videoRef } />
+        { isRunning && <CenterLine /> }
+        {
+          isRunning &&
+            <Live>
+              <LiveMarker />
+              <LiveText>Recording</LiveText>
+            </Live>
+        }
+      </VideoWrapper>
 
-      <MirrorPreview showOverlay={ !isRunning }>
+      <MirrorPreview
+        showOverlay={ !isRunning && hasRun }
+        canvas={ previewRefRight }
+        name="mirror-right"
+      >
         <Canvas ref={ previewRefRight } />
       </MirrorPreview>
-    </VideoWrapper>
+    </PreviewWrapper>
 
 
     {/* <CountdownWrapper></CountdownWrapper> */}
