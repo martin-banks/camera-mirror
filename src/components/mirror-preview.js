@@ -2,7 +2,6 @@ import React from 'react'
 import Styled from 'styled-components'
 import PropTypes from 'prop-types'
 
-import IconDownload from './icon-download'
 import DownloadIcon from './icon-download'
 
 
@@ -43,7 +42,7 @@ const Background = Styled.div`
   z-index: 0;
 `
 
-const DownloadWrapper = Styled.div`
+const DownloadWrapper = Styled.a`
   position: absolute;
   display: grid;
   justify-content: center;
@@ -53,7 +52,7 @@ const DownloadWrapper = Styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top, rgba(0,80,150, 1) 60%, rgba(0,0,0, 0));
+  background: linear-gradient(to top, rgba(0,60,80, 0.8) 80%, rgba(0,0,0, 0));
   opacity: ${p => p.showOverlay ? 1 : 0};
   transition: all 300ms;
   transform: ${p => p.showOverlay
@@ -63,14 +62,6 @@ const DownloadWrapper = Styled.div`
   cursor: pointer;
 `
 
-// const Icon = Styled.div`
-//   width: 50px;
-//   height: 50px;
-//   border-radius: 100%;
-//   background: white;
-//   justify-self: center;
-//   margin-bottom: 1rem;
-// `
 const DownloadMessage = Styled.h4`
   position: absolute;
   left: 0;
@@ -85,15 +76,21 @@ const MirrorPreview = props => {
   const {
     children,
     showOverlay,
+    canvas,
+    name,
   } = props
 
 
   return <Preview showOverlay={ showOverlay }>
     <div>
       <Background data-background></Background>
-      <DownloadWrapper data-download showOverlay={ showOverlay }>
+      <DownloadWrapper
+        href={ canvas.current?.toDataURL('image/png') }
+        data-download
+        showOverlay={ showOverlay }
+        download={ `${name}.png` }
+      >
         <DownloadIcon data-icon size="40"/>
-        {/* <Icon data-icon></Icon> */}
         <DownloadMessage data-message>Download image</DownloadMessage>
       </DownloadWrapper>
     </div>
@@ -103,10 +100,13 @@ const MirrorPreview = props => {
 
 MirrorPreview.defaultProps = {
   showOverlay: true,
+  name: 'mirror-image'
 }
 
 MirrorPreview.propTypes = {
   showOverlay: PropTypes.bool,
+  canvas: PropTypes.object.isRequired,
+  name: PropTypes.string,
 }
 
 export default MirrorPreview
