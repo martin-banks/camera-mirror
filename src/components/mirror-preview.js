@@ -70,6 +70,7 @@ const DownloadMessage = Styled.h4`
   padding: 2rem 0;
   transform: translateY(200%);
   transition: transform 500ms;
+  color: #ffffff;
 `
 
 const MirrorPreview = props => {
