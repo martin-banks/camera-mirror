@@ -8,11 +8,13 @@ const SVG = Styled.svg`
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 100;
+  z-index: 1;
 `
 // * Each triangle has it's own opacity value
 // * to create a more textured effect
 const maskOpacity = () => Math.min(Math.random() + 0.1, 0.7)
+
+
 
 export default props => {
   // const context = useContext(AppContext)
@@ -50,16 +52,16 @@ export default props => {
   const [ viewBox, setViewBox ] = useState([ 1000, 1000 ])
   const [ trianglesPerRow, setTrianglesPerRow ] = useState(50)
 
-  const [ windowWidth, setWindowWidth ] = useState(0)
-  const [ windowHeight, setWindowHeight ] = useState(0)
+  const [ windowWidth, setWindowWidth ] = useState(window.innerWidth)
+  const [ windowHeight, setWindowHeight ] = useState(window.innerHeight)
 
   // const [ windowWidth, updateWindowWidth ] = useState(context.windowWidth.get)
   // const [ windowHeight, updateWindowHeight ] = useState(context.windowHeight.get)
 
   // TODO -> Add window resize listener to rescale pattern to update size if using window size
   useEffect(() => {
-    setWindowWidth(window.innerWidth)
-    setWindowHeight(window.innerHeight)
+    // setWindowWidth(window.innerWidth)
+    // setWindowHeight(window.innerHeight)
     setRowCount(Math.ceil(windowHeight / 50))
     setViewBox([
       windowWidth,
