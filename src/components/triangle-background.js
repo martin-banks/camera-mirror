@@ -22,7 +22,7 @@ export default props => {
   // const context = useContext(AppContext)  
   const {
     name = 'default',
-    // * Horizintal "size" of the triangle
+    // * Horizontal "size" of the triangle
     hyp = 50,
     // * How many triangles per row.
     // * This allows for the triangles that clip off at either side
