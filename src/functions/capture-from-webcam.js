@@ -1,45 +1,70 @@
-import arrayMirror from './array-mirror'
+import groupPixels from './group-pixels'
 
 
-function groupPixels ({ pixels, videoSize }) {
-  const count = pixels?.data?.length / 4
-  const output = {
-    width: pixels.width,
-    height: pixels.height,
-    data: [],
-  }
-  for (let i = 0; i < count; i++) {
-    const start = 4 * i
-    const end = start + 4
-    output.data.push([...pixels.data.slice(start, end)])
-  }
 
-  const mirrored = arrayMirror({ ratio: [videoSize.width, videoSize.height], data: output.data })
+function storeFullResImage (props) {
+  const {
+    canvasRef,
+    videoRef,
+    setCameraLive,
+  } = props
 
-  const mirrorSplitLeft = []
-  const mirrorSplitRight = []
-  for (let i = 0; i < mirrored.left.length; i++) {
-    mirrorSplitLeft.push(...mirrored.left[i])
-    mirrorSplitRight.push(...mirrored.right[i])
-  }
+  const ctx = canvasRef.current.getContext('2d')
 
-  const readyToRender = {
-    left: new ImageData(
-      Uint8ClampedArray.from(mirrorSplitLeft),
-      pixels.width,
-      pixels.height,
-    ),
-    right: new ImageData(
-      Uint8ClampedArray.from(mirrorSplitRight),
-      pixels.width,
-      pixels.height,
-    ),
-  }
+  navigator.mediaDevices
+    .getUserMedia({ audio: false, video: true })
+    .then(localMediaStream => {
+      const videoTrack = localMediaStream.getVideoTracks()[0]
+      const track = videoTrack.getCapabilities()
+      console.log({ videoTrack, track })
 
-  return readyToRender
+      videoRef.current.srcObject = localMediaStream
+      videoRef.current.play()
+
+      ctx.drawImage(
+        videoRef.current,
+        0, 0,
+        track.width.max,
+        track.height.max,
+      )
+
+      setTimeout(() => {
+        videoRef.current.pause()
+        setCameraLive(false)
+        localMediaStream.getTracks().forEach(t => t.stop())
+
+        console.log('context', ctx.getImageData(0, 0, track.width.max, track.height.max))
+        const groupedPixels = groupPixels({
+          videoSize: {
+            width: track.width.max,
+            left: track.height.max,
+          },
+          pixels: ctx.getImageData(0, 0, track.width.max, track.height.max)
+        })
+
+        console.log({ groupedPixels })
+      }, 1000)
+
+      return true // groupedPixels
+    })
+    .catch(error => {
+      console.error('-- ERROR CREATING FULL IMAGE --\n', error)
+      console.trace(error)
+      return false
+    })
 }
 
-function captureFromWebcam ({ videoSize, videoRef, canvasRef, previewRefLeft, previewRefRight, duration, setCameraLive }) {
+
+function captureFromWebcam (props) {
+  const {
+    videoSize,
+    videoRef,
+    canvasRef,
+    previewRefLeft,
+    previewRefRight,
+    duration,
+    setCameraLive,
+  } = props
 
   navigator.mediaDevices.getUserMedia({
     audio: false,
@@ -52,9 +77,9 @@ function captureFromWebcam ({ videoSize, videoRef, canvasRef, previewRefLeft, pr
       console.log(localMediaStream)
       videoRef.current.srcObject = localMediaStream
 
-      const videoTrack = localMediaStream.getVideoTracks()[0]
-      const videoTrackCapabilities = videoTrack.getCapabilities()
-      console.log({ videoTrack, videoTrackCapabilities })
+      // const videoTrack = localMediaStream.getVideoTracks()[0]
+      // const videoTrackCapabilities = videoTrack.getCapabilities()
+      // console.log({ videoTrack, videoTrackCapabilities })
 
       const ctx = canvasRef.current.getContext('2d')
       const previewCtxLeft = previewRefLeft.current.getContext('2d')
@@ -81,20 +106,18 @@ function captureFromWebcam ({ videoSize, videoRef, canvasRef, previewRefLeft, pr
             videoRef.current.videoWidth,
             videoRef.current.videoHeight
           )
+          const groupedPixels = groupPixels({
+            videoSize,
+            pixels: ctx.getImageData(0, 0, videoSize.width, videoSize.height)
+          })
           previewCtxLeft.putImageData(
-            groupPixels({
-              videoSize,
-              pixels: ctx.getImageData(0, 0, videoSize.width, videoSize.height)
-            }).left,
+            groupedPixels.left,
             0,0,0,0,
             videoSize.width,
             videoSize.height,
           )
           previewCtxRight.putImageData(
-            groupPixels({
-              videoSize,
-              pixels: ctx.getImageData(0, 0, videoSize.width, videoSize.height)
-            }).right,
+            groupedPixels.right,
             0,0,0,0,
             videoSize.width,
             videoSize.height,
@@ -107,12 +130,21 @@ function captureFromWebcam ({ videoSize, videoRef, canvasRef, previewRefLeft, pr
         }, 32) // interval update
       }, 1000)
 
-      setTimeout(() => {
+      setTimeout(async () => {
         // Cancel the update loop after timep period
         clearInterval(updateLoop)
         videoRef.current.pause()
         setCameraLive(false)
         localMediaStream.getTracks().forEach(t => t.stop())
+
+        storeFullResImage(props)
+
+        // TODO
+        // - Get max resolution of camera
+        // - Create new object data at full size
+        // - Use this data as source for cerating downloadable images
+        // ? Store max res image data in local storage (?)
+
       }, duration)
     })
     .catch(err => {
