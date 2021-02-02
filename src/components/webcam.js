@@ -1,18 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Styled, { keyframes } from 'styled-components'
-import PropTypes from 'prop-types'
+import Styled, { keyframes, css } from 'styled-components'
+// import PropTypes from 'prop-types'
 
 import captureFromWebcam from '../functions/capture-from-webcam'
+
+import DeviceContext from '../context/device-context'
 
 import MirrorPreview from './mirror-preview'
 import PlayIcon from './icon-play'
 import timer from './timer-hooks'
 
+import useWindowSize from './window-resize-hook'
+
+
+
+const minVideoSize = 200
+const previewGridGap = 16
 
 const videoSize = {
-  width: 400,
-  height: 400,
+  width: 350, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
+  height: 350, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
 }
+
+const previewCommonStyles = css`
+  width: ${p => videoSize.width}px;
+  height: ${p => videoSize.height}px;
+`
 
 
 // ? Components
@@ -20,15 +33,22 @@ const videoSize = {
 const Wrapper = Styled.div`
   margin-bottom: 20rem;
 `
+
 const PreviewWrapper = Styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: ${p => p.windowWidth >= videoSize.width * 3 ? 'grid' : 'block'};
+  /* grid-template-columns: repeat(3, ${videoSize.width}px); */
+  grid-template-columns: repeat(auto-fill, minmax(${videoSize.width}px, 1fr));
   justify-items: center;
   align-items: center;
+  /* gap: ${previewGridGap}px; */
+  width: ${p => p.windowWidth >= videoSize.width * 3 ? '100vw' : `${videoSize.width}px`};
+  max-width: ${(videoSize.width * 3) + (previewGridGap * 2)}px;
+  /* height: calc(1200px / 3); */
+  margin: 0 auto;
+  outline: solid 1px lime;
 `
 const Canvas = Styled.canvas`
-  width: 350px;
-  height: 350px;
+  ${previewCommonStyles};
 `
 // This canvas is used to convert the video
 // it is not intended to be seen
@@ -39,8 +59,7 @@ const CanvasStaging = Styled.canvas`
   pointer-events: none;
 `
 const Video = Styled.video`
-  width: 400px; // ${p => videoSize.width / 2}px;
-  height: 400px; // ${p => videoSize.height / 2}px;
+  ${previewCommonStyles};
   background: black;
 `
 const ControlsWrapper = Styled.section`
@@ -81,7 +100,7 @@ const Live = Styled.div`
   grid-template-columns: auto auto;
   align-items: center;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -150%);
   padding: 4px 12px;
   border: solid 1px white;
   border-radius: 100px;
@@ -144,6 +163,8 @@ const WebCam = () => {
   const [ showTimer, setShowTimer ] = useState(false)
   const [ hasRun, setHasRun ] = useState(false)
 
+  const [ windowWidth, windowHeight ] = useWindowSize()
+
   const {
     time,
     setTime,
@@ -177,23 +198,79 @@ const WebCam = () => {
     }
   }
 
-  const handleDownload = ref => {
-    console.log({ ref })
-  }
+
 
   return <Wrapper>
     <CanvasStaging ref={ canvasRef } />
 
-    <PreviewWrapper>
+    <DeviceContext.Consumer>
+      { ({ device }) => device === 'mobile' &&
+        <ControlsWrapper>{
+          isRunning
+          ? <CountdownWrapper>
+              <p>Image ready in ...</p>
+              <Countdown>{ (duration / 1000) - time }</Countdown>
+            </CountdownWrapper>
+          : <Button onClick={ handleButtonClick }>
+              <PlayIcon size={ 100 } fill="#ffffff" />
+            </Button>
+        }</ControlsWrapper>
+      }
+    </DeviceContext.Consumer>
+
+    <PreviewWrapper windowWidth={ windowWidth }>
+      {
+        windowWidth < videoSize.width * 3 &&
+          <MirrorPreview
+            showOverlay={ !isRunning && hasRun }
+            canvas={ canvasRef }
+            name="recored-image"
+          >
+            <Video ref={ videoRef } />
+            { isRunning && <CenterLine /> }
+            {
+              isRunning &&
+                <Live>
+                  <LiveMarker />
+                  <LiveText>Recording</LiveText>
+                </Live>
+            }
+            <h3>live-preview</h3>
+          </MirrorPreview>
+      }
+
+
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
         canvas={ previewRefLeft }
         name="mirror-left"
       >
         <Canvas ref={ previewRefLeft } />
+        <h3>mirror-left</h3>
       </MirrorPreview>
 
-      <VideoWrapper>
+      {
+        windowWidth >= videoSize.width * 3 &&
+          <MirrorPreview
+            showOverlay={ !isRunning && hasRun }
+            canvas={ canvasRef }
+            name="recored-image"
+          >
+            <Video ref={ videoRef } />
+            { isRunning && <CenterLine /> }
+            {
+              isRunning &&
+                <Live>
+                  <LiveMarker />
+                  <LiveText>Recording</LiveText>
+                </Live>
+            }
+            <h3>live-preview</h3>
+          </MirrorPreview>
+      }
+
+
+      {/* <VideoWrapper>
         <Video ref={ videoRef } />
         { isRunning && <CenterLine /> }
         {
@@ -203,7 +280,7 @@ const WebCam = () => {
               <LiveText>Recording</LiveText>
             </Live>
         }
-      </VideoWrapper>
+      </VideoWrapper> */}
 
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
@@ -211,14 +288,17 @@ const WebCam = () => {
         name="mirror-right"
       >
         <Canvas ref={ previewRefRight } />
+        <h3>mirror-right</h3>
       </MirrorPreview>
     </PreviewWrapper>
 
 
     {/* <CountdownWrapper></CountdownWrapper> */}
 
-    <ControlsWrapper>
-      {
+
+    <DeviceContext.Consumer>
+      { ({ device }) => device === 'desktop' &&
+        <ControlsWrapper>{
           isRunning
           ? <CountdownWrapper>
               <p>Image ready in ...</p>
@@ -227,8 +307,10 @@ const WebCam = () => {
           : <Button onClick={ handleButtonClick }>
               <PlayIcon size={ 100 } fill="#ffffff" />
             </Button>
+        }</ControlsWrapper>
       }
-    </ControlsWrapper>
+    </DeviceContext.Consumer>
+
     {/* <pre>
       pixels length: { pixelState?.length } | 
       grouped: { groupPixels(pixelState)?.length }
