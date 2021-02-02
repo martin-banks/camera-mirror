@@ -3,10 +3,14 @@ import Styled from 'styled-components'
 
 
 const Wrapper = Styled.section`
+  position: relative;
   display: grid;
   justify-content: center;
+  width: 80vw;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0;
+  left: 50%;
+  transform: translateX(-50%);
   margin-bottom: 4rem;
   
 `
