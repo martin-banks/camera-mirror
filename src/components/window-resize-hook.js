@@ -3,6 +3,7 @@ import React, { useLayoutEffect, useState } from 'react'
 
 const useWindowSize = () => {
   const [ size, setSize ] = useState([ 0, 0 ])
+
   let resizeWait = null
 
   function updateSize() {

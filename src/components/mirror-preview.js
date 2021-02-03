@@ -2,7 +2,10 @@ import React from 'react'
 import Styled from 'styled-components'
 import PropTypes from 'prop-types'
 
+// import FullResContext from '../context/fullres-context'
+
 import DownloadIcon from './icon-download'
+// import Downloader from './downloader'
 
 
 
@@ -42,7 +45,7 @@ const Background = Styled.div`
   z-index: 0;
 `
 
-const DownloadWrapper = Styled.a`
+const DownloadWrapper = Styled.div`
   position: absolute;
   display: grid;
   justify-content: center;
@@ -79,17 +82,51 @@ const MirrorPreview = props => {
     showOverlay,
     canvas,
     name,
+    side,
+    fullResData
   } = props
+
+  const handleClick = () => {
+    console.log({ fullResData })
+    const { width, height } = fullResData[name]
+
+    const canvas = document.createElement('canvas')
+    // canvas.setAttribute('width', width)
+    // canvas.setAttribute('heaight', height)
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+
+    console.log({ canvas }, canvas.outerHTML)
+    canvas.putImageData(
+      fullResData[name],
+      0,0,0,0,
+      width,
+      height
+    )
+
+    const dataUrl = ctx.toDataUrl('image/png')
+
+    const a = document.createElement('a')
+    a.setAttribute('download', `${name}-download.png`)
+    a.setAttribute('href', dataUrl,)
+    a.click()
+  }
 
 
   return <Preview showOverlay={ showOverlay }>
     <div>
       <Background data-background></Background>
+      {/* <Downloader name={ name }>
+        <DownloadIcon data-icon size="40"/>
+        <DownloadMessage data-message>Download image</DownloadMessage>
+      </Downloader> */}
       <DownloadWrapper
-        href={ canvas.current?.toDataURL('image/png') }
-        data-download
+        // href={ canvas.current?.toDataURL('image/png') }
+        // data-download
         showOverlay={ showOverlay }
-        download={ `${name}.png` }
+        // download={ `${name}.png` }
+        onClick={ handleClick }
       >
         <DownloadIcon data-icon size="40"/>
         <DownloadMessage data-message>Download image</DownloadMessage>

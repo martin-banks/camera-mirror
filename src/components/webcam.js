@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 import Styled, { keyframes, css } from 'styled-components'
 // import PropTypes from 'prop-types'
 
 import captureFromWebcam from '../functions/capture-from-webcam'
+import storeFullResImage from '../functions/save-fullres-image'
 
 import DeviceContext from '../context/device-context'
+import fullResContext from '../context/fullres-context'
 
 import MirrorPreview from './mirror-preview'
 import PlayIcon from './icon-play'
@@ -53,9 +55,9 @@ const Canvas = Styled.canvas`
 // This canvas is used to convert the video
 // it is not intended to be seen
 const CanvasStaging = Styled.canvas`
-  display: none;
-  width: 0;
-  height: 0;
+  /* display: none; */
+  width: 500px;
+  height: 500px;
   pointer-events: none;
 `
 const Video = Styled.video`
@@ -154,7 +156,9 @@ const CenterLine = Styled.span`
 // ! Webcam app
 const WebCam = () => {
   const videoRef = useRef(null)
+  const hiddenVideoRef = useRef(null)
   const canvasRef = useRef(null)
+  const fullResRef = useRef(null)
   const previewRefLeft = useRef(null)
   const previewRefRight = useRef(null)
 
@@ -162,8 +166,10 @@ const WebCam = () => {
   const [ duration, setDuration ] = useState(5000)
   const [ showTimer, setShowTimer ] = useState(false)
   const [ hasRun, setHasRun ] = useState(false)
+  const [ fullResData, storeFullRes ] = useState(null)
 
   const [ windowWidth, windowHeight ] = useWindowSize()
+
 
   const {
     time,
@@ -186,6 +192,7 @@ const WebCam = () => {
   }, [time, isRunning, cameraLive])
 
 
+
   const handleButtonClick = () => {
     if (isRunning) {
       setIsRunning(false)
@@ -194,7 +201,31 @@ const WebCam = () => {
       setIsRunning(true)
       setHasRun(true)
       setCameraLive(true)
-      captureFromWebcam({ videoSize, videoRef, canvasRef, previewRefLeft, previewRefRight, duration, setCameraLive })
+      captureFromWebcam({
+        videoSize,
+        videoRef,
+        canvasRef,
+        previewRefLeft,
+        previewRefRight,
+        fullResRef,
+        duration,
+        setCameraLive,
+      })
+
+      setTimeout(() => {
+        storeFullResImage({
+          videoSize,
+          videoRef,
+          hiddenVideoRef,
+          canvasRef,
+          previewRefLeft,
+          previewRefRight,
+          fullResRef,
+          duration: duration / 2,
+          setCameraLive,
+          storeFullRes,
+        })
+      }, duration / 2)
     }
   }
 
@@ -202,6 +233,7 @@ const WebCam = () => {
 
   return <Wrapper>
     <CanvasStaging ref={ canvasRef } />
+    <Video ref={ hiddenVideoRef } />
 
     <DeviceContext.Consumer>
       { ({ device }) => device === 'mobile' &&
@@ -224,6 +256,7 @@ const WebCam = () => {
           <MirrorPreview
             showOverlay={ !isRunning && hasRun }
             canvas={ canvasRef }
+            fullResData={ fullResData }
             name="recored-image"
           >
             <Video ref={ videoRef } />
@@ -243,7 +276,8 @@ const WebCam = () => {
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
         canvas={ previewRefLeft }
-        name="mirror-left"
+        fullResData={ fullResData }
+        name="left"
       >
         <Canvas ref={ previewRefLeft } />
         <h3>mirror-left</h3>
@@ -254,7 +288,8 @@ const WebCam = () => {
           <MirrorPreview
             showOverlay={ !isRunning && hasRun }
             canvas={ canvasRef }
-            name="recored-image"
+            fullResData={ fullResData }
+            name="live"
           >
             <Video ref={ videoRef } />
             { isRunning && <CenterLine /> }
@@ -285,12 +320,15 @@ const WebCam = () => {
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
         canvas={ previewRefRight }
-        name="mirror-right"
+        fullResData={ fullResData }
+        name="right"
       >
         <Canvas ref={ previewRefRight } />
         <h3>mirror-right</h3>
       </MirrorPreview>
     </PreviewWrapper>
+
+    <Canvas ref={ fullResRef } />
 
 
     {/* <CountdownWrapper></CountdownWrapper> */}

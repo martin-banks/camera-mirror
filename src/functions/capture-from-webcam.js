@@ -1,58 +1,59 @@
 import groupPixels from './group-pixels'
+// import storeFullResImage from './save-fullres-image'
 
 
 
-function storeFullResImage (props) {
-  const {
-    canvasRef,
-    videoRef,
-    setCameraLive,
-  } = props
+// function storeFullResImage (props) {
+//   const {
+//     canvasRef,
+//     videoRef,
+//     setCameraLive,
+//   } = props
 
-  const ctx = canvasRef.current.getContext('2d')
+//   const ctx = canvasRef.current.getContext('2d')
 
-  navigator.mediaDevices
-    .getUserMedia({ audio: false, video: true })
-    .then(localMediaStream => {
-      const videoTrack = localMediaStream.getVideoTracks()[0]
-      const track = videoTrack.getCapabilities()
-      console.log({ videoTrack, track })
+//   navigator.mediaDevices
+//     .getUserMedia({ audio: false, video: true })
+//     .then(localMediaStream => {
+//       const videoTrack = localMediaStream.getVideoTracks()[0]
+//       const track = videoTrack.getCapabilities()
+//       console.log({ videoTrack, track })
 
-      videoRef.current.srcObject = localMediaStream
-      videoRef.current.play()
+//       videoRef.current.srcObject = localMediaStream
+//       videoRef.current.play()
 
-      ctx.drawImage(
-        videoRef.current,
-        0, 0,
-        track.width.max,
-        track.height.max,
-      )
+//       ctx.drawImage(
+//         videoRef.current,
+//         0, 0,
+//         track.width.max,
+//         track.height.max,
+//       )
 
-      setTimeout(() => {
-        videoRef.current.pause()
-        setCameraLive(false)
-        localMediaStream.getTracks().forEach(t => t.stop())
+//       setTimeout(async () => {
+//         videoRef.current.pause()
+//         setCameraLive(false)
+//         localMediaStream.getTracks().forEach(t => t.stop())
 
-        console.log('context', ctx.getImageData(0, 0, track.width.max, track.height.max))
-        const groupedPixels = groupPixels({
-          videoSize: {
-            width: track.width.max,
-            left: track.height.max,
-          },
-          pixels: ctx.getImageData(0, 0, track.width.max, track.height.max)
-        })
+//         console.log('context', ctx.getImageData(0, 0, track.width.max, track.height.max))
+//         const groupedPixels = await groupPixels({
+//           videoSize: {
+//             width: track.width.max,
+//             left: track.height.max,
+//           },
+//           pixels: ctx.getImageData(0, 0, track.width.max, track.height.max)
+//         })
 
-        console.log({ groupedPixels })
-      }, 1000)
+//         console.log({ groupedPixels })
+//       }, 1000)
 
-      return true // groupedPixels
-    })
-    .catch(error => {
-      console.error('-- ERROR CREATING FULL IMAGE --\n', error)
-      console.trace(error)
-      return false
-    })
-}
+//       return true // groupedPixels
+//     })
+//     .catch(error => {
+//       console.error('-- ERROR CREATING FULL IMAGE --\n', error)
+//       console.trace(error)
+//       return false
+//     })
+// }
 
 
 function captureFromWebcam (props) {
@@ -99,14 +100,14 @@ function captureFromWebcam (props) {
         previewRefRight.current.width = videoSize.width
         previewRefRight.current.height = videoSize.height
 
-        updateLoop = setInterval(() => {
+        updateLoop = setInterval(async () => {
           ctx.drawImage(
             videoRef.current,
             0, 0,
             videoRef.current.videoWidth,
             videoRef.current.videoHeight
           )
-          const groupedPixels = groupPixels({
+          const groupedPixels = await groupPixels({
             videoSize,
             pixels: ctx.getImageData(0, 0, videoSize.width, videoSize.height)
           })
@@ -127,8 +128,8 @@ function captureFromWebcam (props) {
           // Useful for dynamic sizing
           // const pixels = ctx.getImageData(0, 0, videoWidth, videoWidth)
           // updatePixelState(pixels)
-        }, 32) // interval update
-      }, 1000)
+        }, 42) // interval update
+      }, 100)
 
       setTimeout(async () => {
         // Cancel the update loop after timep period
@@ -137,7 +138,7 @@ function captureFromWebcam (props) {
         setCameraLive(false)
         localMediaStream.getTracks().forEach(t => t.stop())
 
-        storeFullResImage(props)
+        // storeFullResImage(props)
 
         // TODO
         // - Get max resolution of camera
