@@ -27,7 +27,7 @@ const AppTitle = () => {
 return <Wrapper>
   {/* <Title>page title</Title> */}
   <Intro>Ever wondered what you would look like if your face was perfectly symetrical? Now you can! Hit the button, line your face up in the middle to find out.</Intro>
-  <Intro>Have fun! </Intro>
+  {/* <Intro>Have fun! </Intro> */}
 </Wrapper>
 }
 
