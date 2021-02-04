@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import Styled from 'styled-components'
 import PropTypes from 'prop-types'
-
-// import FullResContext from '../context/fullres-context'
 
 import DownloadIcon from './icon-download'
 // import Downloader from './downloader'
 
 
+const HiddenCanvas = Styled.canvas`
+  display: none;
+`
 
 const Preview = Styled.div`
   position: relative;
@@ -16,12 +17,14 @@ const Preview = Styled.div`
   border-radius: 4px;
   background: black;
   transition: opacity 300ms;
+  width: ${p => p.size.width}px;
+  height: ${p => p.size.height}px;
   &:hover {
     [data-background] {
       opacity: ${p => p.showOverlay && 1};
     };
     [data-download] {
-      transform: ${p => p.showOverlay && `translateY(-33%)`};
+      transform: ${p => p.showOverlay && `translateY(-50%)`};
       opacity: ${p => p.showOverlay && 1};
     };
     [data-message] {
@@ -38,14 +41,13 @@ const Background = Styled.div`
   height: 100%;
   border: solid 2px rgba(255, 255, 255, 1);
   border-radius: 4px;
-  /* background: rgba(0, 200, 0, 0.5); */
   opacity: 0;
   transition: all 300ms;
   backdrop-filter: blur(4px);
   z-index: 0;
 `
 
-const DownloadWrapper = Styled.div`
+const DownloadWrapper = Styled.a`
   position: absolute;
   display: grid;
   justify-content: center;
@@ -83,29 +85,30 @@ const MirrorPreview = props => {
     canvas,
     name,
     side,
-    fullResData
+    fullResData,
+    size,
   } = props
+
+  const fullSizeCanvasRef = useRef(null)
 
   const handleClick = () => {
     console.log({ fullResData })
     const { width, height } = fullResData[name]
+    console.log({ width, height })
 
-    const canvas = document.createElement('canvas')
-    // canvas.setAttribute('width', width)
-    // canvas.setAttribute('heaight', height)
-    canvas.width = width
-    canvas.height = height
-    const ctx = canvas.getContext('2d')
+    // const canvas = document.createElement('canvas')
+    fullSizeCanvasRef.current.width = width
+    fullSizeCanvasRef.current.height = height
+    const ctx = fullSizeCanvasRef.current.getContext('2d')
 
-    console.log({ canvas }, canvas.outerHTML)
-    canvas.putImageData(
+    ctx.putImageData(
       fullResData[name],
       0,0,0,0,
       width,
       height
     )
 
-    const dataUrl = ctx.toDataUrl('image/png')
+    const dataUrl = fullSizeCanvasRef.current.toDataURL('image/png')
 
     const a = document.createElement('a')
     a.setAttribute('download', `${name}-download.png`)
@@ -114,19 +117,20 @@ const MirrorPreview = props => {
   }
 
 
-  return <Preview showOverlay={ showOverlay }>
+  return <Preview showOverlay={ showOverlay } size={ size }>
     <div>
+      <HiddenCanvas ref={ fullSizeCanvasRef } />
       <Background data-background></Background>
       {/* <Downloader name={ name }>
         <DownloadIcon data-icon size="40"/>
         <DownloadMessage data-message>Download image</DownloadMessage>
       </Downloader> */}
       <DownloadWrapper
-        // href={ canvas.current?.toDataURL('image/png') }
-        // data-download
+        href={ canvas.current?.toDataURL('image/png') }
+        data-download
         showOverlay={ showOverlay }
-        // download={ `${name}.png` }
-        onClick={ handleClick }
+        download={ `${name}.png` }
+        // onClick={ handleClick }
       >
         <DownloadIcon data-icon size="40"/>
         <DownloadMessage data-message>Download image</DownloadMessage>
@@ -145,6 +149,10 @@ MirrorPreview.propTypes = {
   showOverlay: PropTypes.bool,
   canvas: PropTypes.object.isRequired,
   name: PropTypes.string,
+  size: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
 }
 
 export default MirrorPreview
