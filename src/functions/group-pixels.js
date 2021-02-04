@@ -1,7 +1,6 @@
 import arrayMirror from './array-mirror'
 
 function groupPixels ({ pixels, videoSize, delay }) {
-
   return new Promise(async (resolve, reject) => {
     try {
       const count = pixels?.data?.length / 4
@@ -12,8 +11,8 @@ function groupPixels ({ pixels, videoSize, delay }) {
       }
 
       // TODO
-      // - Too many loops
-    
+      // - Too many loops?
+
       // Loop to generate arrays of pixel colors [r,g,b,a]
       for (let i = 0; i < count; i++) {
         const start = 4 * i
