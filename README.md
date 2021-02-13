@@ -1,4 +1,4 @@
-[Camera Mirror logo](/src/files/images/camera-mirror-logo-light-background@3x.png)
+![Camera Mirror logo](/src/files/images/camera-mirror-logo-light-background@3x.png)
 
 # Camera Mirror
 
