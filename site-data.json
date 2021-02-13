@@ -1,9 +1,9 @@
 {
   "metadata": {
     "title": "Camera Mirror",
-    "description": "Takes the video feed from a webcam and displays two images where each side is mirrored to the other",
+    "description": "Create and download a symetrical, mirrored version of each side of your face. Using the video feed from a webcam to display three images; the original live feed and a mirrored version of both the left and right sides to create perfectly symetrical images.",
     "author": "Martin Banks. @anotherbanksy",
-    "siteUrl": "https://www.martinbanks.com.au"
+    "siteUrl": "https://cameramirror.martinbanks.com.au"
   },
 
   "trackingId": "UA-158548765-1",
