@@ -1,84 +1,54 @@
-# Gatsby project template
+[Camera Mirror logo](/src/files/images/camera-mirror-logo-light-background@3x.png)
 
-Based on the [Gatsby Starter Default](https://www.gatsbyjs.com/starters/gatsbyjs/gatsby-starter-default/) template (notes below), this is intended for me to create a simple project setup for personal project, skipping the hassle of all the initial setup so I can get to the fun stuff quicker!
+# Camera Mirror
 
+A fun little project playing around with the webcam from the `mediaDevices` api to create symetrical images.
 
-## Creating a new project with this template
-Open your favourite CLI app and use the following to generate a new project from this repo:
-
-```shell
-gatsyby new witty-project-name https://github.com/martin-banks/project-template-gatsby.git
-cd witty-project-name
-
-```
+The idea comes from the notion that no-one's face is symetrical, so what what would we look like if they were? And how to find out if you don't know your way around PhotoShop?
 
 
-## Site information
-All of the site metadata and setting have been moved out into a single config file in the project root `site-data.json` to referenced in the gatsby config file or in pages that use repetative SEO data (for example).
+## What does it use?
+Gatsby with React Styled Components is the setup I've been using recently and there is much to learn, so let's keep on with that.
 
-Information includes:
-- Site title
-- Site description
-- Author
-- Tracking ID (Google analytics)
-- PWA options
+The rest is good old vanilla JS and a little bit of maths.
+
+Shoutout to Wes Bos' [JavsScript 30 course](https://javascript30.com/). Great inspiration and reference to get up and running using the webcam in a browser.
 
 
-## Personal / social information
-Details for social media and contacts are stored in separate JSON files in `./src/files/about` and can be accessed through a GraphQL query:
 
-```graphql
-socials: allAboutJson(
-  filter: {active: {eq: true}},
-  sort: {order: ASC, fields: index}
-) {
-  edges {
-    node {
-      id
-      name
-      active
-      gradient
-      color
-      icon
-      link
-    }
-  }
-}
-```
-
-Each file includes values for either a colour or gradient that can be seen in use by hovering over the social icons in the page footer.
+## How?
+This isn't a full technical guide, only outlining some of the high level concepts I used to get to the end reseult.
 
 
-## Themes
-A theme context wraps every page making the users browser themes easily available on every page and component. Reference the theme value through it's consumer:
+### Take a live feed from the webcam.
+Get a webcam feed and display as a video element as a live feed to help the user line up along the center of the frame.
 
-```javascript
-import React from 'react'
-import ThemeContext from '../context/theme-context'
+### Get the image data
+Converting the video into a canvas, we can get read the image data as a massive array of pixel values. Each of the RGBA values are listed in a single array, so before I can figure out which side the data represents it should grouped into sub arrays representing each pixel.
 
-export default () => (
-  <ThemeContent.Consmuer>
-    { c => <p>The theme is use is: { c.theme }</p> }
-  </ThemeContent.Consmuer>
-)
+### Identifying sides and creating the mirror effect
+The dimensions of the video describes the boundary of a grid the pixels are plotted in. For example; in a 10 x 10 grid the 15th pixel will be on the second row and fifth column; meaning it's on the right hand side of the image.
 
-```
+[I built another small project you can check out here,](https://github.com/martin-banks/array-mirror) that goes into more detail of how I'm handling this.
 
 
-## Creating pages
-New pages are created by adding a file the in the `./src/pages` folder. This file name will then create a new separate page accessible by using it's filename in the site path. All of the layout basics are included as default so only the page content and SEO details are required
+### Render the update
+With the new mirrored-arrays for each side we can now render images into canvas elements (ensuring that each of the nested arrays are spread into a single array of numbers again). With running within an interval loop we know have a live feed of the mirrored images
 
 
-The SEO will default to the information stored in the `site-data.json` file mentioned earlier but can be configured by passing appropriate the props.
 
-```jsx
-import React from "react"
-import SEO from "../components/seo"
+## What did I learn?
+- Brushing up on React and the the new(ish) Hooks
+- Working with very large arrays performance was very important; turns out good old for loops are more efficient that the array methods I've come to rely on so much.
+- One small spelling mistake and break everything and not throw an error :(
 
-export default () => (
-  <>
-    <SEO title="Page title" />
-    <h1>Hello world!</h1>
-  </>
-)
-```
+
+## Taking it further
+
+This was a fun project to refresh some (admittedly rusty) skills and learn some nerw tricks along the way. I built what I set out to do but there's always more, maybe I'll come back to it one day...
+
+- Remove steps where the pixel data is grouped and ungrouped into into sub-arrays of 'pixels'; this feel like and unnecessary performance hit.
+- Create output images at the maximum resolution supported by the web cam.
+- Additional manipulation types.
+- Change the manipulation after the the capture is complete.
+
