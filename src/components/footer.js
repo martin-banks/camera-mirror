@@ -126,7 +126,7 @@ const SignatureWrapper = Styled.div`
   width: 200px;
   align-self: center;
   margin: 0;
-  transform: translateX(40%);
+  transform: translateX(20%);
 `
 
 const Copyright = Styled.p`
