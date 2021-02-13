@@ -3,6 +3,9 @@ import React, { useContext } from 'react'
 import groupPixels from './group-pixels'
 
 
+// ! This function is not currently in use
+// ! Inconsistancies with webcam feed put this beyond the scope at theis stage
+
 function storeFullResImage (props) {
   const {
     // canvasRef,
