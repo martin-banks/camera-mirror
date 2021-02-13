@@ -16,7 +16,10 @@ function captureFromWebcam (props) {
 
   navigator.mediaDevices.getUserMedia({
     audio: false,
-    video: true,
+    video: {
+      width: { exact: width},
+      height: { exact: height },
+    },
   })
     .then(localMediaStream => {
       // const videoTrack = localMediaStream.getVideoTracks()[0]
