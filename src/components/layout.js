@@ -32,7 +32,7 @@ const LayoutWrapper = Styled.div`
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
   position: relative;
-  padding-top: 10rem;
+  padding-top: 16rem;
   z-index: 100;
 `
 

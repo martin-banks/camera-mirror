@@ -16,7 +16,8 @@ const Container = Styled.header`
   margin: 0;
   padding: 0;
   padding-top: 2rem;
-  padding-left: 6rem;
+  padding-left: 2rem;
+
   /* Background colors are supported but not in use by default */
   /* background: rgba(0,0,0, 0.5); */
   /* @media (prefers-color-scheme: dark) {
