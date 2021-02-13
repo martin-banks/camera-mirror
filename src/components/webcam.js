@@ -2,10 +2,9 @@ import React, { useEffect, useRef, useState, useContext } from 'react'
 import Styled, { keyframes, css } from 'styled-components'
 
 import captureFromWebcam from '../functions/capture-from-webcam'
-import storeFullResImage from '../functions/save-fullres-image'
+// import storeFullResImage from '../functions/save-fullres-image'
 
 import useDevice from './device-hook'
-// import fullResContext from '../context/fullres-context'
 
 import MirrorPreview from './mirror-preview'
 import PlayIcon from './icon-play'
@@ -15,16 +14,16 @@ import useWindowSize from './window-resize-hook'
 
 
 
-// const minVideoSize = 200
+
 const previewGridGap = 16
 
 const videoSize = {
-  width: 640, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
-  height: 480, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
+  width: 640,
+  height: 480,
 }
 const previewSize = {
-  width: 350, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
-  height: 260, // Math.max((windowWidth / 3) - (previewGridGap * 2), minVideoSize),
+  width: 350,
+  height: 260,
 }
 
 const previewCommonStyles = css`
@@ -176,7 +175,6 @@ const WebCam = () => {
 
   const [ cameraLive, setCameraLive ] = useState(false)
   const [ duration, setDuration ] = useState(5000)
-  // const [ showTimer, setShowTimer ] = useState(false)
   const [ hasRun, setHasRun ] = useState(false)
   const [ fullResData, storeFullRes ] = useState(null)
 
@@ -197,7 +195,6 @@ const WebCam = () => {
       setIsRunning(false)
       setCameraLive(false)
     }
-
   }, [time, isRunning, cameraLive])
 
   const handleButtonClick = () => {
@@ -223,7 +220,6 @@ const WebCam = () => {
       // ! NOT IN USE
       // ! This has has been parked for this version due to the way chrome handles web-cam use
       // ! The purpose of this project is about mirroring the image not to get maximum web-cam images
-
       // setTimeout(() => {
       //   try {
       //     storeFullResImage({
@@ -248,26 +244,24 @@ const WebCam = () => {
   }
 
 
-
   return <Wrapper>
     <CanvasStaging ref={ canvasRef } />
     {/* <HiresVideo ref={ hiddenVideoRef } /> */}
     {/* <Canvas ref={ fullResRef } /> */}
 
-    {/* <DeviceContext.Consumer> */}
-      { device === 'mobile' &&
-        <ControlsWrapper>{
-          isRunning
-          ? <CountdownWrapper>
-              <p>Image ready in ...</p>
-              <Countdown>{ (duration / 1000) - time }</Countdown>
-            </CountdownWrapper>
-          : <Button onClick={ handleButtonClick }>
-              <PlayIcon size={ 100 } fill="#ffffff" />
-            </Button>
-        }</ControlsWrapper>
-      }
-    {/* </DeviceContext.Consumer> */}
+
+    { device === 'mobile' &&
+      <ControlsWrapper>{
+        isRunning
+        ? <CountdownWrapper>
+            <p>Image ready in ...</p>
+            <Countdown>{ (duration / 1000) - time }</Countdown>
+          </CountdownWrapper>
+        : <Button onClick={ handleButtonClick }>
+            <PlayIcon size={ 100 } fill="#ffffff" />
+          </Button>
+      }</ControlsWrapper>
+    }
 
     <PreviewWrapper windowWidth={ windowWidth }>
       {
@@ -276,34 +270,13 @@ const WebCam = () => {
             <Video ref={ videoRef } />
             { isRunning && <CenterLine /> }
             { isRunning &&
-                <Live>
-                  <LiveMarker />
-                  <LiveText>Recording</LiveText>
-                </Live>
+              <Live>
+                <LiveMarker />
+                <LiveText>Recording</LiveText>
+              </Live>
             }
           </VideoWrapper>
       }
-      {/* {
-        windowWidth < (previewSize.width * 3) &&
-          <MirrorPreview
-            showOverlay={ !isRunning && hasRun }
-            canvas={ canvasRef }
-            fullResData={ fullResData }
-            name="live"
-          >
-            <Video ref={ videoRef } />
-            <CanvasStaging ref={ canvasRef } />
-            { isRunning && <CenterLine /> }
-            {
-              isRunning &&
-                <Live>
-                  <LiveMarker />
-                  <LiveText>Recording</LiveText>
-                </Live>
-            }
-          </MirrorPreview>
-      } */}
-
 
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
@@ -315,42 +288,19 @@ const WebCam = () => {
         <Canvas ref={ previewRefLeft } />
       </MirrorPreview>
 
-      {/* {
-        windowWidth >= (previewSize.width * 3) &&
-          <MirrorPreview
-            showOverlay={ !isRunning && hasRun }
-            canvas={ canvasRef }
-            fullResData={ fullResData }
-            name="live"
-            size={ previewSize }
-          >
-            <Video ref={ videoRef } />
-            <CanvasStaging ref={ canvasRef } />
-            { isRunning && <CenterLine /> }
-            {
-              isRunning &&
-                <Live>
-                  <LiveMarker />
-                  <LiveText>Recording</LiveText>
-                </Live>
-            }
-          </MirrorPreview>
-      } */}
-
       {
         windowWidth >= (previewSize.width * 3) &&
           <VideoWrapper>
             <Video ref={ videoRef } />
             { isRunning && <CenterLine /> }
             { isRunning &&
-                <Live>
-                  <LiveMarker />
-                  <LiveText>Recording</LiveText>
-                </Live>
+              <Live>
+                <LiveMarker />
+                <LiveText>Recording</LiveText>
+              </Live>
             }
           </VideoWrapper>
       }
-
 
       <MirrorPreview
         showOverlay={ !isRunning && hasRun }
@@ -363,26 +313,19 @@ const WebCam = () => {
       </MirrorPreview>
     </PreviewWrapper>
 
+    { device === 'desktop' &&
+      <ControlsWrapper>{
+        isRunning
+        ? <CountdownWrapper>
+            <p>Image ready in ...</p>
+            <Countdown>{ (duration / 1000) - time }</Countdown>
+          </CountdownWrapper>
+        : <Button onClick={ handleButtonClick }>
+            <PlayIcon size={ 100 } fill="#ffffff" />
+          </Button>
+      }</ControlsWrapper>
+    }
 
-    {/* <DeviceContext.Consumer> */}
-      { device === 'desktop' &&
-        <ControlsWrapper>{
-          isRunning
-          ? <CountdownWrapper>
-              <p>Image ready in ...</p>
-              <Countdown>{ (duration / 1000) - time }</Countdown>
-            </CountdownWrapper>
-          : <Button onClick={ handleButtonClick }>
-              <PlayIcon size={ 100 } fill="#ffffff" />
-            </Button>
-        }</ControlsWrapper>
-      }
-    {/* </DeviceContext.Consumer> */}
-
-    {/* <pre>
-      pixels length: { pixelState?.length } | 
-      grouped: { groupPixels(pixelState)?.length }
-    </pre> */}
   </Wrapper>
 }
 
